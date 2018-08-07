@@ -17,7 +17,7 @@ const (
 	EOF     = "EOF"     // End of file
 
 	// Identifier + literals
-	IDENT = "INDENT"
+	IDENT = "IDENT"
 	INT   = "INT"
 
 	// Operators
@@ -37,3 +37,17 @@ const (
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
 )
+
+// Builtin Identifier
+var keywords = map[string]TokenType{
+	"fn":  FUNCTION,
+	"let": LET,
+}
+
+// LookupIdent ビルトインIdentifierであればビルトインのTokenTypeを返す
+func LookupIdent(ident string) TokenType {
+	if tok, ok := keywords[ident]; ok {
+		return tok
+	}
+	return IDENT
+}
