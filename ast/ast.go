@@ -106,7 +106,7 @@ type ExpressionStatement struct {
 	Expression Expression
 }
 
-func (es *ExpressionStatement) expressionNode() {}
+func (es *ExpressionStatement) statementNode() {}
 
 // TokenLiteral Nodeリテラル実装
 func (es *ExpressionStatement) TokenLiteral() string { return es.Token.Literal }
