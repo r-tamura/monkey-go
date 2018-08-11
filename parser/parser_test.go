@@ -10,7 +10,7 @@ func TestLetstatement(t *testing.T) {
 	input := `
 		let x = 5;
 		let y = 10;
-		ley foobar = 838383;
+		let foobar = 838383;
 	`
 
 	l := lexer.New(input)
@@ -45,11 +45,22 @@ func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 		return false
 	}
 
-	_, ok := s.(*ast.LetStatement)
+	letStmt, ok := s.(*ast.LetStatement)
 	if !ok {
 		// %Tは型を返す
 		// %T	a Go-syntax representation of the type of the value
 		t.Errorf("s not *ast.Letstatement. got=%T", s)
+		return false
+	}
+
+	if letStmt.Name.Value != name {
+		t.Errorf("letStmt.Name.Value not '%s'. got=%s", name, letStmt.Name.Value)
+		return false
+	}
+
+	if letStmt.Name.TokenLiteral() != name {
+		t.Errorf("s.Name not '%s'. got='%s", name, letStmt.Name)
+		return false
 	}
 
 	return true
