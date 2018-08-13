@@ -118,6 +118,24 @@ func (es *ExpressionStatement) String() string {
 	return ""
 }
 
+// BlockStatement ほぼProgramと同じ構造. 最後がEOFであることだけが違う
+type BlockStatement struct {
+	Token      token.Token // the first token of the expression
+	Statements []Statement
+}
+
+func (bs *BlockStatement) statementNode() {}
+
+// TokenLiteral Nodeリテラル実装
+func (bs *BlockStatement) TokenLiteral() string { return bs.Token.Literal }
+func (bs *BlockStatement) String() string {
+	var out bytes.Buffer
+	for _, s := range bs.Statements {
+		out.WriteString(s.String())
+	}
+	return out.String()
+}
+
 // Identifier 識別子
 // let句ではIdentifierは値を返さないが、Monkey内で位置によっては値を生成する場合があるのでExpressionを実装(P45)
 type Identifier struct {
@@ -186,6 +204,32 @@ func (ie *InfixExpression) String() string {
 	out.WriteString(" " + ie.Operator + " ")
 	out.WriteString(ie.Right.String())
 	out.WriteString(")")
+
+	return out.String()
+}
+
+type IfExpression struct {
+	Token       token.Token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (ie *IfExpression) expressionNode()      {}
+func (ie *IfExpression) TokenLiteral() string { return ie.Token.Literal }
+func (ie *IfExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("if")
+	out.WriteString(ie.Condition.String())
+	out.WriteString(" ")
+	out.WriteString(ie.Consequence.String())
+	out.WriteString(" ")
+
+	if ie.Alternative != nil {
+		out.WriteString("else ")
+		out.WriteString(ie.Alternative.String())
+	}
 
 	return out.String()
 }
