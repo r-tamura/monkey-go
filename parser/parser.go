@@ -135,36 +135,56 @@ func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 
 // <identifier> = <expression> の形式であればLetStatementを返す
 func (p *Parser) parseLetStatement() *ast.LetStatement {
+	// let x = 5; の場合
+	// curToken: let
+	// peekToken: x
 	stmt := &ast.LetStatement{Token: p.curToken}
 
 	if !p.expectPeek(token.IDENT) {
 		return nil
 	}
 
+	// curToken: x
+	// peekToken: =
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
 	if !p.expectPeek(token.ASSIGN) {
 		return nil
 	}
+	// curToken: =
+	// peekToken: 5
+	p.nextToken()
 
-	// TODO: Wr're skipping the expressions until we encounter a semicolon
-	for !p.curTokenIs(token.SEMICOLON) {
+	// curToken: 5
+	// peekToken: ;
+	stmt.Value = p.parseExpression(LOWEST)
+
+	// ; ありなし両対応
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
-
+	// curToken: ;
+	// peekToken:
 	return stmt
 }
 
 func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+	// return 5; の場合
+	// curToken: return
+	// peekToken: 5
 	stmt := &ast.ReturnStatement{Token: p.curToken}
 
 	p.nextToken()
 
-	// TODO: Wr're skipping the expressions until we encounter a semicolon
-	for !p.curTokenIs(token.SEMICOLON) {
+	// curToken: 5
+	// peekToken: ;
+	stmt.ReturnValue = p.parseExpression(LOWEST)
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 
+	// curToken: ;
+	// peekToken:
 	return stmt
 }
 
