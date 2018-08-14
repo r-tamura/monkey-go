@@ -277,3 +277,30 @@ func (fl *FunctionLiteral) String() string {
 
 	return out.String()
 }
+
+// CallExpression 関数呼び出し <identifier>(<comma separated expressions>)
+type CallExpression struct {
+	Token     token.Token
+	Function  Expression // Identifier or FunctionLiteral
+	Arguments []Expression
+}
+
+func (ce *CallExpression) expressionNode() {}
+
+// TokenLiteral Nodeリテラル実装
+func (ce *CallExpression) TokenLiteral() string { return ce.Token.Literal }
+func (ce *CallExpression) String() string {
+	var out bytes.Buffer
+
+	var arguments []string
+	for _, p := range ce.Arguments {
+		arguments = append(arguments, p.String())
+	}
+
+	out.WriteString(ce.Function.String())
+	out.WriteString("(")
+	out.WriteString(strings.Join(arguments, ", "))
+	out.WriteString(")")
+
+	return out.String()
+}
