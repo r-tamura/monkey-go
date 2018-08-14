@@ -65,6 +65,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.FALSE, p.parseBoolean)
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 	p.registerPrefix(token.IF, p.parseIfExpression)
+	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -315,23 +316,86 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	p.nextToken()
 	expression.Condition = p.parseExpression(LOWEST)
 
+	// curToken: ")"
+	// peekToken: {
 	if !p.expectPeek(token.RPAREN) {
 		return nil
 	}
+
+	// curToken: {
+	// peekToken: x
 	if !p.expectPeek(token.LBRACE) {
 		return nil
 	}
+
+	// curToken: x
+	// peekToken: }
 	expression.Consequence = p.parseBlockStatement()
 
+	// curToken: else
+	// peekToken: {
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken()
+		// curToken: {
+		// peekToken: y
 		if !p.expectPeek(token.LBRACE) {
 			return nil
 		}
+		// curToken: y
+		// peekToken: }
 		expression.Alternative = p.parseBlockStatement()
 	}
-
+	// curToken: }
+	// peekToken: EOF
 	return expression
+}
+
+func (p *Parser) parseFunctionLiteral() ast.Expression {
+	lit := &ast.FunctionLiteral{Token: p.curToken}
+	// `fn(x, y) { x + y; }`の場合
+	// curToken: fn
+	// peekToken: "("
+
+	if !p.expectPeek(token.LPAREN) {
+		return nil
+	}
+	// curToken: "("
+	// peekToken: x
+	lit.Parameters = p.parseFunctionParameters()
+
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	lit.Body = p.parseBlockStatement()
+
+	return lit
+}
+
+func (p *Parser) parseFunctionParameters() []*ast.Identifier {
+	var identifiers []*ast.Identifier
+
+	if p.peekTokenIs(token.RPAREN) {
+		p.nextToken()
+		return identifiers
+	}
+
+	p.nextToken()
+
+	ident := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	identifiers = append(identifiers, ident)
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		ident := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+		identifiers = append(identifiers, ident)
+	}
+
+	if !p.expectPeek(token.RPAREN) {
+		return nil
+	}
+	return identifiers
 }
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {
