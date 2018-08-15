@@ -5,6 +5,13 @@ import (
 	"monkey/object"
 )
 
+var (
+	// TRUE boolean用オブジェクト全てのtrueはこのオブジェクトとして評価される
+	TRUE = &object.Boolean{Value: true}
+	// FALSE boolean用オブジェクト全てのfalseはこのオブジェクトとして評価される
+	FALSE = &object.Boolean{Value: false}
+)
+
 // Eval parserによって生成されたASTを評価する
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
@@ -18,7 +25,8 @@ func Eval(node ast.Node) object.Object {
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
-		return &object.Boolean{Value: node.Value}
+		// booleanは2パターンしか存在しないので同じオブジェクトを参照するように (P146)
+		return nativeBoolToBooleanObject(node.Value)
 	}
 
 	return nil
@@ -32,4 +40,11 @@ func evalStatements(stmts []ast.Statement) object.Object {
 	}
 
 	return result
+}
+
+func nativeBoolToBooleanObject(input bool) *object.Boolean {
+	if input {
+		return TRUE
+	}
+	return FALSE
 }
