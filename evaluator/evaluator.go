@@ -6,6 +6,8 @@ import (
 )
 
 var (
+	// NULL Null用オブジェクト
+	NULL = &object.Null{}
 	// TRUE boolean用オブジェクト全てのtrueはこのオブジェクトとして評価される
 	TRUE = &object.Boolean{Value: true}
 	// FALSE boolean用オブジェクト全てのfalseはこのオブジェクトとして評価される
