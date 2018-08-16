@@ -10,7 +10,7 @@ const (
 	BOOLEAN_OBJ      = "BOOLEAN"
 	NULL_OBJ         = "NULL"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
-	ERROR_OBJ = "ERROR_OBJ"
+	ERROR_OBJ        = "ERROR_OBJ"
 )
 
 // Object 全ての値は異なる型で定義される
@@ -72,3 +72,25 @@ func (e *Error) Type() ObjectType { return ERROR_OBJ }
 
 // Inspect fullfil the object.Object interface
 func (e *Error) Inspect() string { return "ERROR: " + e.Message }
+
+func NewEnvironment() *Environment {
+	s := make(map[string]Object)
+	return &Environment{store: s}
+}
+
+// Environment 環境: 束縛されている変数の一覧を持つ
+type Environment struct {
+	store map[string]Object
+}
+
+// Get get a value from the environment
+func (e *Environment) Get(name string) (Object, bool) {
+	obj, ok := e.store[name]
+	return obj, ok
+}
+
+// Set set a value to the environment
+func (e *Environment) Set(name string, val Object) Object {
+	e.store[name] = val
+	return val
+}

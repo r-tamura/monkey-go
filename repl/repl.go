@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"monkey/object"
 
 	"monkey/evaluator"
 	"monkey/lexer"
@@ -18,6 +19,7 @@ func Start(in io.Reader, out io.Writer) {
 	// bufio Reader/Writerを引数に取りバッファリング用機能を追加したReader/Writerを返す
 	// bufio.Scanner 文字列を特定の区切り文字で区切るようにバッファリングを行う デフォルトは改行区切り
 	scanner := bufio.NewScanner(in)
+	env := object.NewEnvironment()
 
 	for {
 		fmt.Print(PROMPT)
@@ -37,7 +39,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		evaluated := evaluator.Eval(program)
+		evaluated := evaluator.Eval(program, env)
 		if evaluated != nil {
 			io.WriteString(out, evaluated.Inspect())
 			io.WriteString(out, "\n")
