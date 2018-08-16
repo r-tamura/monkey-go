@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"monkey/ast"
 	"monkey/object"
 )
@@ -54,8 +55,11 @@ func evalProgram(program *ast.Program) object.Object {
 	for _, statement := range program.Statements {
 		result = Eval(statement)
 
-		if returnValue, ok := result.(*object.ReturnValue); ok {
-			return returnValue.Value
+		switch result := result.(type) {
+		case *object.ReturnValue:
+			return result.Value
+		case *object.Error:
+			return result
 		}
 	}
 
@@ -68,9 +72,13 @@ func evalBlockStatement(blcok *ast.BlockStatement) object.Object {
 	for _, statement := range blcok.Statements {
 		result = Eval(statement)
 
-		if result != nil && result.Type() == object.RETURN_VALUE_OBJ {
-			// ReturnValueをunwrapしないので、evalProgramまでReturnValue型でバブルアップしていく (P166)
-			return result
+		if result != nil {
+			rt := result.Type()
+			if rt == object.RETURN_VALUE_OBJ || rt == object.ERROR_OBJ {
+				// ReturnValueをunwrapしないので、evalProgramまでReturnValue型でバブルアップしていく (P166)
+				// Errorの場合も同様
+				return result
+			}
 		}
 	}
 
@@ -91,7 +99,7 @@ func evalPrefixExpression(operator string, right object.Object) object.Object {
 	case "-":
 		return evalMinuxPrefixExpression(right)
 	default:
-		return NULL
+		return newError("unkown operator: %s%s", operator, right.Type())
 	}
 }
 
@@ -110,7 +118,7 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 
 func evalMinuxPrefixExpression(right object.Object) object.Object {
 	if right.Type() != object.INTEGER_OBJ {
-		return NULL
+		return newError("unknown operator: -%s", right.Type())
 	}
 
 	value := right.(*object.Integer).Value
@@ -121,10 +129,16 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	switch {
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(operator, left, right)
-	case left.Type() == object.BOOLEAN_OBJ && right.Type() == object.BOOLEAN_OBJ:
-		return evalBooleanInfixExpression(operator, left, right)
+		// MonkeyのBooleanは全てTRUE/FALSEオブジェクトへの参照なので参照への比較を行えばよい
+		// パフォーマンス的にはIntegerよりも良くなる (P157)
+	case operator == "==":
+		return nativeBoolToBooleanObject(left == right)
+	case operator == "!=":
+		return nativeBoolToBooleanObject(left != right)
+	case left.Type() != right.Type():
+		return newError("type mismatch: %s %s %s", left.Type(), operator, right.Type())
 	default:
-		return NULL
+		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 }
 
@@ -149,20 +163,7 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	case "!=":
 		return nativeBoolToBooleanObject(leftVal != rightVal)
 	default:
-		return NULL
-	}
-}
-
-func evalBooleanInfixExpression(operator string, left, right object.Object) object.Object {
-	// MonkeyのBooleanは全てTRUE/FALSEオブジェクトへの参照なので参照への比較を行えばよい
-	// パフォーマンス的にはIntegerよりも良くなる (P157)
-	switch operator {
-	case "==":
-		return nativeBoolToBooleanObject(left == right)
-	case "!=":
-		return nativeBoolToBooleanObject(left != right)
-	default:
-		return NULL
+		return newError("unkown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 }
 
@@ -189,4 +190,8 @@ func isTruthy(obj object.Object) bool {
 	default:
 		return true
 	}
+}
+
+func newError(format string, a ...interface{}) *object.Error {
+	return &object.Error{Message: fmt.Sprintf(format, a...)}
 }

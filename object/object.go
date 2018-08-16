@@ -10,6 +10,7 @@ const (
 	BOOLEAN_OBJ      = "BOOLEAN"
 	NULL_OBJ         = "NULL"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
+	ERROR_OBJ = "ERROR_OBJ"
 )
 
 // Object 全ての値は異なる型で定義される
@@ -60,3 +61,14 @@ func (rv *ReturnValue) Type() ObjectType { return RETURN_VALUE_OBJ }
 
 // Inspect fullfil the object.Object interface
 func (rv *ReturnValue) Inspect() string { return rv.Value.Inspect() }
+
+// ReturnValue Objectをラップする
+type Error struct {
+	Message string
+}
+
+// Type fullfil the object.Object interface
+func (e *Error) Type() ObjectType { return ERROR_OBJ }
+
+// Inspect fullfil the object.Object interface
+func (e *Error) Inspect() string { return "ERROR: " + e.Message }
