@@ -1,6 +1,11 @@
 package object
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+	"monkey/ast"
+	"strings"
+)
 
 // ObjectType token.Tokenと同じような型
 type ObjectType string
@@ -11,6 +16,7 @@ const (
 	NULL_OBJ         = "NULL"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 	ERROR_OBJ        = "ERROR_OBJ"
+	FUNCTION_OBJ     = "FUNCTION_OBJ"
 )
 
 // Object 全ての値は異なる型で定義される
@@ -62,7 +68,7 @@ func (rv *ReturnValue) Type() ObjectType { return RETURN_VALUE_OBJ }
 // Inspect fullfil the object.Object interface
 func (rv *ReturnValue) Inspect() string { return rv.Value.Inspect() }
 
-// ReturnValue Objectをラップする
+// Error Error Objectをラップする
 type Error struct {
 	Message string
 }
@@ -73,6 +79,38 @@ func (e *Error) Type() ObjectType { return ERROR_OBJ }
 // Inspect fullfil the object.Object interface
 func (e *Error) Inspect() string { return "ERROR: " + e.Message }
 
+// Function function
+type Function struct {
+	Parameters []*ast.Identifier
+	Body       *ast.BlockStatement
+	Env        *Environment
+}
+
+// Type fullfil the object.Object interface
+func (f *Function) Type() ObjectType { return FUNCTION_OBJ }
+
+// Inspect fullfil the object.Object interface
+func (f *Function) Inspect() string {
+	// Memo: string結合よりもbytes.Bufferを使った方がパフォーマンスが良い
+	// https://machiel.me/post/bytes-buffer-for-string-concatenation-in-go/
+	var out bytes.Buffer
+
+	var params []string
+	for _, p := range f.Parameters {
+		params = append(params, p.String())
+	}
+
+	out.WriteString("fn")
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ","))
+	out.WriteString(") {\n")
+	out.WriteString(f.Body.String())
+	out.WriteString("\n}")
+
+	return out.String()
+}
+
+// NewEnvironment create new environment object
 func NewEnvironment() *Environment {
 	s := make(map[string]Object)
 	return &Environment{store: s}

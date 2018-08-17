@@ -180,7 +180,7 @@ func TestErrorHandling(t *testing.T) {
 	}
 }
 
-func TestLesStatements(t *testing.T) {
+func TestLetStatements(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected int64
@@ -194,6 +194,30 @@ func TestLesStatements(t *testing.T) {
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 		testIntegerObject(t, evaluated, tt.expected)
+	}
+}
+
+func TestFunctionObject(t *testing.T) {
+	input := `fn(x) { x + 2; }`
+
+	evaluated := testEval(input)
+	fn, ok := evaluated.(*object.Function)
+	if !ok {
+		t.Fatalf("object is not Function. got=%T, (%+v)", evaluated, evaluated)
+	}
+
+	if len(fn.Parameters) != 1 {
+		// Memo: the plus flag (%+v) adds field names
+		t.Fatalf("function was wrong parameters. Parameters=%+v", fn.Parameters)
+	}
+
+	if fn.Parameters[0].String() != "x" {
+		t.Fatalf("parameter is not %q. got=%q", "x", fn.Parameters[0])
+	}
+
+	expectedBody := "(x + 2)"
+	if fn.Body.String() != expectedBody {
+		t.Fatalf("body is not %q. got=%q", expectedBody, fn.Body.String())
 	}
 }
 
