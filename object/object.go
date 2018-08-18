@@ -18,6 +18,7 @@ const (
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 	ERROR_OBJ        = "ERROR_OBJ"
 	FUNCTION_OBJ     = "FUNCTION_OBJ"
+	BUILTIN_OBJ      = "BUILTIN"
 )
 
 // Object 全ての値は異なる型で定義される
@@ -31,10 +32,10 @@ type Integer struct {
 	Value int64
 }
 
-// Type fulfil the object.Object interface
+// Type fulfill the object.Object interface
 func (i *Integer) Type() ObjectType { return INTEGER_OBJ }
 
-// Inspect fulfil the object.Object interface
+// Inspect fulfill the object.Object interface
 func (i *Integer) Inspect() string { return fmt.Sprintf("%d", i.Value) }
 
 // Boolean boolean型
@@ -47,26 +48,26 @@ type String struct {
 	Value string
 }
 
-// Type fulfil the object.Object interface
+// Type fulfill the object.Object interface
 func (s *String) Type() ObjectType { return STRING_OBJ }
 
-// Inspect fulfil the object.Object interface
+// Inspect fulfill the object.Object interface
 func (s *String) Inspect() string { return s.Value }
 
-// Type fulfil the object.Object interface
+// Type fulfill the object.Object interface
 func (b *Boolean) Type() ObjectType { return BOOLEAN_OBJ }
 
-// Inspect fulfil the object.Object interface
+// Inspect fulfill the object.Object interface
 func (b *Boolean) Inspect() string { return fmt.Sprintf("%t", b.Value) }
 
 // Null null型 nullを実装することでnullの実装について学ぶ
 type Null struct {
 }
 
-// Type fulfil the object.Object interface
+// Type fulfill the object.Object interface
 func (n *Null) Type() ObjectType { return NULL_OBJ }
 
-// Inspect fulfil the object.Object interface
+// Inspect fulfill the object.Object interface
 func (n *Null) Inspect() string { return "null" }
 
 // ReturnValue Objectをラップする
@@ -74,10 +75,10 @@ type ReturnValue struct {
 	Value Object
 }
 
-// Type fulfil the object.Object interface
+// Type fulfill the object.Object interface
 func (rv *ReturnValue) Type() ObjectType { return RETURN_VALUE_OBJ }
 
-// Inspect fulfil the object.Object interface
+// Inspect fulfill the object.Object interface
 func (rv *ReturnValue) Inspect() string { return rv.Value.Inspect() }
 
 // Error Error Objectをラップする
@@ -85,10 +86,10 @@ type Error struct {
 	Message string
 }
 
-// Type fulfil the object.Object interface
+// Type fulfill the object.Object interface
 func (e *Error) Type() ObjectType { return ERROR_OBJ }
 
-// Inspect fulfil the object.Object interface
+// Inspect fulfill the object.Object interface
 func (e *Error) Inspect() string { return "ERROR: " + e.Message }
 
 // Function function
@@ -98,10 +99,10 @@ type Function struct {
 	Env        *Environment
 }
 
-// Type fulfil the object.Object interface
+// Type fulfill the object.Object interface
 func (f *Function) Type() ObjectType { return FUNCTION_OBJ }
 
-// Inspect fulfil the object.Object interface
+// Inspect fulfill the object.Object interface
 func (f *Function) Inspect() string {
 	// Memo: string結合よりもbytes.Bufferを使った方がパフォーマンスが良い
 	// https://machiel.me/post/bytes-buffer-for-string-concatenation-in-go/
@@ -122,7 +123,20 @@ func (f *Function) Inspect() string {
 	return out.String()
 }
 
-// NewEnclosedenvironment 外側の環境を参照する新しい環境を生成する
+type BuiltinFunction func(args ...Object) Object
+
+// Builtin ビルトイン関数
+type Builtin struct {
+	Fn BuiltinFunction
+}
+
+// Type fulfill the object.Object interface
+func (b *Builtin) Type() ObjectType { return BUILTIN_OBJ }
+
+// Inspect fulfill the object.Object interface
+func (b *Builtin) Inspect() string { return "builtin function" }
+
+// NewEnclosedEnvironment 外側の環境を参照する新しい環境を生成する
 func NewEnclosedEnvironment(outer *Environment) *Environment {
 	env := NewEnvironment()
 	env.outer = outer
