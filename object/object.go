@@ -19,6 +19,7 @@ const (
 	ERROR_OBJ        = "ERROR_OBJ"
 	FUNCTION_OBJ     = "FUNCTION_OBJ"
 	BUILTIN_OBJ      = "BUILTIN"
+	ARRAY_OBJ        = "ARRAY"
 )
 
 // Object 全ての値は異なる型で定義される
@@ -43,6 +44,12 @@ type Boolean struct {
 	Value bool
 }
 
+// Type fulfill the object.Object interface
+func (b *Boolean) Type() ObjectType { return BOOLEAN_OBJ }
+
+// Inspect fulfill the object.Object interface
+func (b *Boolean) Inspect() string { return fmt.Sprintf("%t", b.Value) }
+
 // String Go言語のString型をそのまま利用
 type String struct {
 	Value string
@@ -54,11 +61,29 @@ func (s *String) Type() ObjectType { return STRING_OBJ }
 // Inspect fulfill the object.Object interface
 func (s *String) Inspect() string { return s.Value }
 
+// Array 配列 Goの配列をそのまま利用
+type Array struct {
+	Elements []Object
+}
+
 // Type fulfill the object.Object interface
-func (b *Boolean) Type() ObjectType { return BOOLEAN_OBJ }
+func (ao *Array) Type() ObjectType { return ARRAY_OBJ }
 
 // Inspect fulfill the object.Object interface
-func (b *Boolean) Inspect() string { return fmt.Sprintf("%t", b.Value) }
+func (ao *Array) Inspect() string {
+	var out bytes.Buffer
+
+	var elements []string
+	for _, e := range ao.Elements {
+		elements = append(elements, e.Inspect())
+	}
+
+	out.WriteString("[")
+	out.WriteString(strings.Join(elements, ", "))
+	out.WriteString("]")
+
+	return out.String()
+}
 
 // Null null型 nullを実装することでnullの実装について学ぶ
 type Null struct {
