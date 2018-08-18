@@ -250,6 +250,18 @@ func (b *Boolean) expressionNode() {}
 func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
 func (b *Boolean) String() string       { return b.Token.Literal }
 
+// StringLiteral Goの文字列型をそのまま利用する
+type StringLiteral struct {
+	Token token.Token
+	Value string
+}
+
+func (sl *StringLiteral) expressionNode() {}
+
+// TokenLiteral Nodeリテラル実装
+func (sl *StringLiteral) TokenLiteral() string { return sl.Token.Literal }
+func (sl *StringLiteral) String() string       { return sl.Token.Literal }
+
 // FunctionLiteral 関数は式として使える
 type FunctionLiteral struct {
 	Token      token.Token
