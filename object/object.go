@@ -3,6 +3,7 @@ package object
 import (
 	"bytes"
 	"fmt"
+	"hash/fnv"
 	"monkey/ast"
 	"strings"
 )
@@ -16,10 +17,11 @@ const (
 	STRING_OBJ       = "STRING"
 	NULL_OBJ         = "NULL"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
-	ERROR_OBJ        = "ERROR_OBJ"
-	FUNCTION_OBJ     = "FUNCTION_OBJ"
+	ERROR_OBJ        = "ERROR"
+	FUNCTION_OBJ     = "FUNCTION"
 	BUILTIN_OBJ      = "BUILTIN"
 	ARRAY_OBJ        = "ARRAY"
+	HASH_OBJ         = "HASH"
 )
 
 // Object 全ての値は異なる型で定義される
@@ -193,4 +195,68 @@ func (e *Environment) Get(name string) (Object, bool) {
 func (e *Environment) Set(name string, val Object) Object {
 	e.store[name] = val
 	return val
+}
+
+type HashKey struct {
+	Type  ObjectType
+	Value int64
+}
+
+// Hashable Hash化可能なオブジェクト
+type Hashable interface {
+	HashKey() HashKey
+}
+
+// HashKey boolean
+func (b *Boolean) HashKey() HashKey {
+	var value int64
+
+	if b.Value {
+		value = 1
+	} else {
+		value = 0
+	}
+	return HashKey{Type: b.Type(), Value: value}
+}
+
+func (i *Integer) HashKey() HashKey {
+	return HashKey{Type: i.Type(), Value: int64(i.Value)}
+}
+
+func (s *String) HashKey() HashKey {
+	h := fnv.New64a()
+	h.Write([]byte(s.Value))
+
+	return HashKey{Type: s.Type(), Value: int64(h.Sum64())}
+}
+
+// HashPair HashKey生成元のKeyとValue
+type HashPair struct {
+	Key   Object
+	Value Object
+}
+
+// Hash Monkey hash(map)　object
+// Memo: map[HashKey]Objectにしない理由: Inspectでkey/valueを表示するため
+// HashKeyには実際のkeyは格納されていない. (P242)
+type Hash struct {
+	Pairs map[HashKey]HashPair
+}
+
+// Type fulfill the object.Object interface
+func (h *Hash) Type() ObjectType { return HASH_OBJ }
+
+// Inspect fulfill the object.Object interface
+func (h *Hash) Inspect() string {
+	var out bytes.Buffer
+	var pairs []string
+	for _, pair := range h.Pairs {
+		pairs = append(pairs, fmt.Sprintf("%s: %s", pair.Key.Inspect(), pair.Value.Inspect()))
+	}
+
+	out.WriteString("{")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString("}")
+
+	return out.String()
 }
