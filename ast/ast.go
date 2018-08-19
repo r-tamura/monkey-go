@@ -311,6 +311,32 @@ func (ie *IndexExpression) String() string {
 	return out.String()
 }
 
+// HashLiteral hash, hash map, map
+type HashLiteral struct {
+	Token token.Token // the '{' token
+	Pairs map[Expression]Expression
+}
+
+func (hl *HashLiteral) expressionNode() {}
+
+// TokenLiteral Nodeリテラル実装
+func (hl *HashLiteral) TokenLiteral() string { return hl.Token.Literal }
+func (hl *HashLiteral) String() string {
+	var out bytes.Buffer
+
+	var pairs []string
+	// range mapはkey, valueを返す
+	for key, value := range hl.Pairs {
+		pairs = append(pairs, key.String()+":"+value.String())
+	}
+
+	out.WriteString("{")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString("}")
+
+	return out.String()
+}
+
 // FunctionLiteral 関数は式として使える
 type FunctionLiteral struct {
 	Token      token.Token
