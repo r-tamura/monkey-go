@@ -16,6 +16,7 @@ const (
 	OpConstant Opcode = iota
 )
 
+// Definition a defition of monkey instructions
 type Definition struct {
 	Name          string
 	OperandWidths []int
@@ -25,6 +26,7 @@ var definitions = map[Opcode]*Definition{
 	OpConstant: {"OpConstand", []int{2}},
 }
 
+// Lookup Lookup
 func Lookup(op byte) (*Definition, error) {
 	def, ok := definitions[Opcode(op)]
 	if !ok {
