@@ -15,16 +15,20 @@ type Opcode byte
 const (
 	// OpConstant OpConstrant
 	OpConstant Opcode = iota
+	// OpAdd Stack上から2つのデータを取り出し、加算した結果をStack上へ追加する
+	OpAdd
 )
 
 // Definition a defition of monkey instructions
 type Definition struct {
 	Name          string
-	OperandWidths []int
+	OperandWidths []int // Operandのバイト数
 }
 
+// Stack上から引数を取り出すOperatorは引数がないことがある
 var definitions = map[Opcode]*Definition{
 	OpConstant: {"OpConstant", []int{2}},
+	OpAdd:      {"OpAdd", []int{}},
 }
 
 // Lookup Lookup
@@ -97,6 +101,8 @@ func (ins Instructions) fmtInstruction(def *Definition, operands []int) string {
 	}
 
 	switch operandCount {
+	case 0:
+		return def.Name
 	case 1:
 		return fmt.Sprintf("%s %d", def.Name, operands[0])
 	}
