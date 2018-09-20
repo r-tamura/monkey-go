@@ -17,6 +17,9 @@ const (
 	OpConstant Opcode = iota
 	// OpAdd Stack上から2つのデータを取り出し、加算した結果をStack上へ追加する
 	OpAdd
+	OpSub
+	OpMul
+	OpDiv
 	// OpPop Stack上から1つのデータを取り出す
 	OpPop
 )
@@ -31,6 +34,9 @@ type Definition struct {
 var definitions = map[Opcode]*Definition{
 	OpConstant: {"OpConstant", []int{2}},
 	OpAdd:      {"OpAdd", []int{}},
+	OpSub:      {"OpSub", []int{}},
+	OpMul:      {"OpMul", []int{}},
+	OpDiv:      {"OpDiv", []int{}},
 	OpPop:      {"OpPop", []int{}},
 }
 
