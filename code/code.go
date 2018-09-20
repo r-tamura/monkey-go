@@ -17,6 +17,8 @@ const (
 	OpConstant Opcode = iota
 	// OpAdd Stack上から2つのデータを取り出し、加算した結果をStack上へ追加する
 	OpAdd
+	// OpPop Stack上から1つのデータを取り出す
+	OpPop
 )
 
 // Definition a defition of monkey instructions
@@ -29,6 +31,7 @@ type Definition struct {
 var definitions = map[Opcode]*Definition{
 	OpConstant: {"OpConstant", []int{2}},
 	OpAdd:      {"OpAdd", []int{}},
+	OpPop:      {"OpPop", []int{}},
 }
 
 // Lookup Lookup

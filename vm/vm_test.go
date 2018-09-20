@@ -40,7 +40,7 @@ func runVMTests(t *testing.T, tests []vmTestCase) {
 		if err != nil {
 			t.Fatalf("vm error: %s", err)
 		}
-		stackElem := vm.StackTop()
+		stackElem := vm.LastPoppedstackElem()
 
 		testExpectedObject(t, tt.expected, stackElem)
 	}
