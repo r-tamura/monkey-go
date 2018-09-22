@@ -33,6 +33,10 @@ const (
 	OpEqual
 	OpNotEqual
 	OpGreaterThan
+
+	// Prefix Operators
+	OpMinus
+	OpBang
 )
 
 // Definition a defition of monkey instructions
@@ -54,6 +58,8 @@ var definitions = map[Opcode]*Definition{
 	OpEqual:       {"OpEqual", []int{}},
 	OpNotEqual:    {"OpNotEqual", []int{}},
 	OpGreaterThan: {"OpGreaterThan", []int{}},
+	OpMinus:       {"OpMinus", []int{}},
+	OpBang:        {"OpBang", []int{}},
 }
 
 // Lookup Lookup
