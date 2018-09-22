@@ -70,6 +70,22 @@ func TestBooleanExpression(t *testing.T) {
 		{"!!true", true},
 		{"!!false", false},
 		{"!!5", true},
+		{"!(if (false) { 10 })", true},
+	}
+	runVMTests(t, tests)
+}
+
+func TestConditionals(t *testing.T) {
+	tests := []vmTestCase{
+		{"if (true) { 10 }", 10},
+		{"if (true) { 10 } else { 20 }", 10},
+		{"if (false) { 10 } else { 20 }", 20},
+		{"if (1) { 10 }", 10},
+		{"if (1 < 2) { 10 }", 10},
+		{"if (1 < 2) {10} else { 20 }", 10},
+		{"if (1 > 2) { 10 } else { 20 }", 20},
+		{"if (1 > 2) { 10 }", Null},
+		{"if (false) { 10 }", Null},
 	}
 	runVMTests(t, tests)
 }
@@ -104,6 +120,15 @@ func testExpectedObject(t *testing.T, expected interface{}, actual object.Object
 		if err != nil {
 			t.Errorf("testIntegerObject failed: %s", err)
 		}
+	case bool:
+		err := testBooleanObject(expected, actual)
+		if err != nil {
+			t.Errorf("testBooleanObject failed: %s", err)
+		}
+	case *object.Null:
+		if actual != Null {
+			t.Errorf("object is not Null: %T (%+v)", actual, actual)
+		}
 	}
 }
 
@@ -122,6 +147,19 @@ func testIntegerObject(expected int64, actual object.Object) error {
 
 	if expected != result.Value {
 		return fmt.Errorf("object has wrong value. got=%d, want=%d", result.Value, expected)
+	}
+
+	return nil
+}
+
+func testBooleanObject(expected bool, actual object.Object) error {
+	result, ok := actual.(*object.Boolean)
+	if !ok {
+		return fmt.Errorf("object is not Boolean. got=%T (%+v)", actual, actual)
+	}
+
+	if expected != result.Value {
+		return fmt.Errorf("object has wrong value. got=%t, want=%t", result.Value, expected)
 	}
 
 	return nil
