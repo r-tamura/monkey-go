@@ -71,6 +71,11 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+		case code.OpEqual, code.OpNotEqual, code.OpGreaterThan:
+			err := vm.executeComparison(op)
+			if err != nil {
+				return err
+			}
 		case code.OpPop:
 			vm.pop()
 		}
@@ -129,4 +134,48 @@ func (vm *VM) exectueBinaryIntegerOperation(op code.Opcode, left, right object.O
 	}
 
 	return vm.push(&object.Integer{Value: result})
+}
+
+func (vm *VM) executeComparison(op code.Opcode) error {
+	right := vm.pop()
+	left := vm.pop()
+
+	// Memo: 本では || を使っていて,
+	// If they're "both" integers, we'll refer to exectuteIntegerComparison
+	// と書いてあった。&& の間違い?
+	if left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ {
+		return vm.exectueIntegerComparison(op, left, right)
+	}
+
+	switch op {
+	case code.OpEqual:
+		// Boolean型はTrue, Falseへの参照なので、参照同士の比較で問題ない
+		return vm.push(nativeBoolToBoolean(right == left))
+	case code.OpNotEqual:
+		return vm.push(nativeBoolToBoolean(right != left))
+	default:
+		return fmt.Errorf("unknown operator: %d (%s %s)", op, left.Type(), right.Type())
+	}
+}
+
+func (vm *VM) exectueIntegerComparison(op code.Opcode, left, right object.Object) error {
+	leftValue := left.(*object.Integer).Value
+	rightValue := right.(*object.Integer).Value
+	switch op {
+	case code.OpEqual:
+		return vm.push(nativeBoolToBoolean(leftValue == rightValue))
+	case code.OpNotEqual:
+		return vm.push(nativeBoolToBoolean(leftValue != rightValue))
+	case code.OpGreaterThan:
+		return vm.push(nativeBoolToBoolean(leftValue > rightValue))
+	default:
+		return fmt.Errorf("unknown operator: %d (%s %s)", op, left.Type(), right.Type())
+	}
+}
+
+func nativeBoolToBoolean(b bool) object.Object {
+	if b {
+		return True
+	}
+	return False
 }

@@ -26,6 +26,13 @@ const (
 	// Boolean
 	OpTrue
 	OpFalse
+
+	// Comparison Operators
+	// Memo: less thanオペレータはgreater thanの左辺・右辺をコンパイラ上で入れ替えるだけなので定義しない
+	// The expression 3 < 5 can be reorderd to 5 > 3 without changing its result.
+	OpEqual
+	OpNotEqual
+	OpGreaterThan
 )
 
 // Definition a defition of monkey instructions
@@ -36,14 +43,17 @@ type Definition struct {
 
 // Stack上から引数を取り出すOperatorは引数がないことがある
 var definitions = map[Opcode]*Definition{
-	OpConstant: {"OpConstant", []int{2}},
-	OpAdd:      {"OpAdd", []int{}},
-	OpSub:      {"OpSub", []int{}},
-	OpMul:      {"OpMul", []int{}},
-	OpDiv:      {"OpDiv", []int{}},
-	OpPop:      {"OpPop", []int{}},
-	OpTrue:     {"OpTrue", []int{}},
-	OpFalse:    {"OpFalse", []int{}},
+	OpConstant:    {"OpConstant", []int{2}},
+	OpAdd:         {"OpAdd", []int{}},
+	OpSub:         {"OpSub", []int{}},
+	OpMul:         {"OpMul", []int{}},
+	OpDiv:         {"OpDiv", []int{}},
+	OpPop:         {"OpPop", []int{}},
+	OpTrue:        {"OpTrue", []int{}},
+	OpFalse:       {"OpFalse", []int{}},
+	OpEqual:       {"OpEqual", []int{}},
+	OpNotEqual:    {"OpNotEqual", []int{}},
+	OpGreaterThan: {"OpGreaterThan", []int{}},
 }
 
 // Lookup Lookup
