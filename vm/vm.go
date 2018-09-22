@@ -10,6 +10,9 @@ import (
 // StackSize VM stack has Up to 2048 Instructions
 const StackSize = 2048
 
+var True = &object.Boolean{Value: true}
+var False = &object.Boolean{Value: false}
+
 // VM Virtual Machine
 type VM struct {
 	constants    []object.Object
@@ -58,6 +61,16 @@ func (vm *VM) Run() error {
 			}
 		case code.OpAdd, code.OpSub, code.OpMul, code.OpDiv:
 			vm.executeBinaryOperation(op)
+		case code.OpTrue:
+			err := vm.push(True)
+			if err != nil {
+				return err
+			}
+		case code.OpFalse:
+			err := vm.push(False)
+			if err != nil {
+				return err
+			}
 		case code.OpPop:
 			vm.pop()
 		}

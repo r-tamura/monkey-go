@@ -34,6 +34,20 @@ func TestIntegerArithmetic(t *testing.T) {
 	runVMTests(t, tests)
 }
 
+func TestBooleanExpression(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input:    "true",
+			expected: true,
+		},
+		{
+			input:    "false",
+			expected: false,
+		},
+	}
+	runVMTests(t, tests)
+}
+
 func runVMTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
@@ -49,7 +63,7 @@ func runVMTests(t *testing.T, tests []vmTestCase) {
 		if err != nil {
 			t.Fatalf("vm error: %s", err)
 		}
-		stackElem := vm.LastPoppedstackElem()
+		stackElem := vm.LastPoppedStackElem()
 
 		testExpectedObject(t, tt.expected, stackElem)
 	}

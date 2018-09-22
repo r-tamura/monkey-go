@@ -22,6 +22,10 @@ const (
 	OpDiv
 	// OpPop Stack上から1つのデータを取り出す
 	OpPop
+
+	// Boolean
+	OpTrue
+	OpFalse
 )
 
 // Definition a defition of monkey instructions
@@ -38,6 +42,8 @@ var definitions = map[Opcode]*Definition{
 	OpMul:      {"OpMul", []int{}},
 	OpDiv:      {"OpDiv", []int{}},
 	OpPop:      {"OpPop", []int{}},
+	OpTrue:     {"OpTrue", []int{}},
+	OpFalse:    {"OpFalse", []int{}},
 }
 
 // Lookup Lookup
