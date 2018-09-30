@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"monkey/compiler"
+	"monkey/object"
 	"monkey/vm"
 
 	"monkey/lexer"
@@ -19,7 +20,10 @@ func Start(in io.Reader, out io.Writer) {
 	// bufio Reader/Writerを引数に取りバッファリング用機能を追加したReader/Writerを返す
 	// bufio.Scanner 文字列を特定の区切り文字で区切るようにバッファリングを行う デフォルトは改行区切り
 	scanner := bufio.NewScanner(in)
-	// env := object.NewEnvironment()
+
+	constants := []object.Object{}
+	globals := make([]object.Object, vm.GlobalsSize)
+	symbolTable := compiler.NewSymbolTable()
 
 	for {
 		fmt.Print(PROMPT)
@@ -39,14 +43,14 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		comp := compiler.New()
+		comp := compiler.NewWithState(symbolTable, constants)
 		err := comp.Compile(program)
 		if err != nil {
 			fmt.Fprintf(out, "Woops! Compilation failed:\n %s\n", err)
 			continue
 		}
 
-		machine := vm.New(comp.Bytecode())
+		machine := vm.NewWithGlobalStore(comp.Bytecode(), globals)
 		err = machine.Run()
 		if err != nil {
 			fmt.Fprintf(out, "Woops! Executing bytecode failed:\n %s\n", err)

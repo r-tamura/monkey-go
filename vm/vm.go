@@ -10,6 +10,9 @@ import (
 // StackSize VM stack has Up to 2048 Instructions
 const StackSize = 2048
 
+// GlobalsSize The limit of global bindings the VM can support
+const GlobalsSize = 65536
+
 var True = &object.Boolean{Value: true}
 var False = &object.Boolean{Value: false}
 var Null = &object.Null{}
@@ -19,8 +22,9 @@ type VM struct {
 	constants    []object.Object
 	instructions code.Instructions
 
-	stack []object.Object
-	sp    int // Always points to the next value. Top of statck is stack[sp-1]
+	stack   []object.Object
+	sp      int // Always points to the next value. Top of statck is stack[sp-1]
+	globals []object.Object
 }
 
 // New constructor for VM
@@ -30,7 +34,15 @@ func New(bytecode *compiler.Bytecode) *VM {
 		constants:    bytecode.Constants,
 		stack:        make([]object.Object, StackSize),
 		sp:           0,
+		globals:      make([]object.Object, GlobalsSize),
 	}
+}
+
+// NewWithGlobalStore Reusing an existing global store.
+func NewWithGlobalStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
+	vm := New(bytecode)
+	vm.globals = s
+	return vm
 }
 
 // StackTop スタックの一番上の要素を返す
@@ -77,7 +89,6 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
-
 		case code.OpEqual, code.OpNotEqual, code.OpGreaterThan:
 			err := vm.executeComparison(op)
 			if err != nil {
@@ -97,7 +108,6 @@ func (vm *VM) Run() error {
 			pos := int(code.ReadUint16(vm.instructions[ip+1:]))
 			ip = pos - 1
 		case code.OpJumpNotTruthy:
-
 			pos := int(code.ReadUint16(vm.instructions[ip+1:]))
 			ip += 2
 
@@ -105,6 +115,17 @@ func (vm *VM) Run() error {
 			if !isTruthy(condition) {
 				// Alternative
 				ip = pos - 1
+			}
+		case code.OpSetGlobal:
+			globalIndex := code.ReadUint16(vm.instructions[ip+1:])
+			ip += 2
+			vm.globals[globalIndex] = vm.pop()
+		case code.OpGetGlobal:
+			globalIndex := code.ReadUint16(vm.instructions[ip+1:])
+			ip += 2
+			err := vm.push(vm.globals[globalIndex])
+			if err != nil {
+				return err
 			}
 
 		case code.OpPop:
