@@ -48,6 +48,10 @@ const (
 
 	// Null
 	OpNull
+
+	// Array
+	// VMはstackからN個の要素をpop、各要素を評価して、 Object.ArrayStackへpushする
+	OpArray
 )
 
 // Definition a defition of monkey instructions
@@ -76,6 +80,7 @@ var definitions = map[Opcode]*Definition{
 	OpGetGlobal:     {"OpGetGlobal", []int{2}},
 	OpSetGlobal:     {"OpSetGlobal", []int{2}},
 	OpNull:          {"OpNull", []int{}},
+	OpArray:         {"OpArray", []int{2}},
 }
 
 // Lookup Lookup
