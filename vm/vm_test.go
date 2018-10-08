@@ -108,6 +108,21 @@ func TestHashLiterals(t *testing.T) {
 	runVMTests(t, tests)
 }
 
+func TestIndexExpressions(t *testing.T) {
+	tests := []vmTestCase{
+		{"[1, 2, 3][1]", 2},
+		{"[1, 2, 3][0 + 2]", 3},
+		{"[[1, 1, 1]][0][0]", 1},
+		{"[1, 2, 3][99]", Null},
+		{"[1][-1]", Null},
+		{"{1: 1, 2: 2}[1]", 1},
+		{"{1: 1}[0]", Null},
+		{"{}[0]", Null},
+	}
+
+	runVMTests(t, tests)
+}
+
 func TestConditionals(t *testing.T) {
 	tests := []vmTestCase{
 		{"if (true) { 10 }", 10},
