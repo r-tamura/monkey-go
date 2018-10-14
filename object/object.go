@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hash/fnv"
 	"monkey/ast"
+	"monkey/code"
 	"strings"
 )
 
@@ -12,16 +13,17 @@ import (
 type ObjectType string
 
 const (
-	INTEGER_OBJ      = "INTEGER"
-	BOOLEAN_OBJ      = "BOOLEAN"
-	STRING_OBJ       = "STRING"
-	NULL_OBJ         = "NULL"
-	RETURN_VALUE_OBJ = "RETURN_VALUE"
-	ERROR_OBJ        = "ERROR"
-	FUNCTION_OBJ     = "FUNCTION"
-	BUILTIN_OBJ      = "BUILTIN"
-	ARRAY_OBJ        = "ARRAY"
-	HASH_OBJ         = "HASH"
+	INTEGER_OBJ           = "INTEGER"
+	BOOLEAN_OBJ           = "BOOLEAN"
+	STRING_OBJ            = "STRING"
+	NULL_OBJ              = "NULL"
+	RETURN_VALUE_OBJ      = "RETURN_VALUE"
+	ERROR_OBJ             = "ERROR"
+	FUNCTION_OBJ          = "FUNCTION"
+	BUILTIN_OBJ           = "BUILTIN"
+	ARRAY_OBJ             = "ARRAY"
+	HASH_OBJ              = "HASH"
+	COMPILED_FUNCTION_OBJ = "COMPILED_FUNCTION_OBJ"
 )
 
 // Object 全ての値は異なる型で定義される
@@ -243,10 +245,10 @@ type Hash struct {
 	Pairs map[HashKey]HashPair
 }
 
-// Type fulfill the object.Object interface
+// Type meets the object.Object interface
 func (h *Hash) Type() ObjectType { return HASH_OBJ }
 
-// Inspect fulfill the object.Object interface
+// Inspect meets the object.Object interface
 func (h *Hash) Inspect() string {
 	var out bytes.Buffer
 	var pairs []string
@@ -259,4 +261,17 @@ func (h *Hash) Inspect() string {
 	out.WriteString("}")
 
 	return out.String()
+}
+
+// CompiledFunction コンパイラ用
+type CompiledFunction struct {
+	Instructions code.Instructions
+}
+
+// Type meets the object.Object interface
+func (cf *CompiledFunction) Type() ObjectType { return COMPILED_FUNCTION_OBJ }
+
+// Inspect meets the object.Object interface
+func (cf *CompiledFunction) Inspect() string {
+	return fmt.Sprintf("CompiledFunction[%p]", cf)
 }

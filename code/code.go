@@ -56,6 +56,11 @@ const (
 	OpHash
 	// Index Operator
 	OpIndex
+
+	// Function
+	OpCall
+	OpReturnValue // Stackの最後の要素を返す
+	OpReturn      // Nullを返す(返す値が存在しないFunctionで利用する)
 )
 
 // Definition a defition of monkey instructions
@@ -87,6 +92,9 @@ var definitions = map[Opcode]*Definition{
 	OpArray:         {"OpArray", []int{2}},
 	OpHash:          {"OpHash", []int{2}},
 	OpIndex:         {"OpIndex", []int{}},
+	OpCall:          {"OpCall", []int{}},
+	OpReturnValue:   {"OpReturnValue", []int{}},
+	OpReturn:        {"OpReturn", []int{}},
 }
 
 // Lookup Lookup
