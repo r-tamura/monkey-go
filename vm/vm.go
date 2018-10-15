@@ -188,7 +188,38 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+		case code.OpCall:
+			// Stack上にあるCompiledFunctionをpopし、framesへ追加する
+			fn, ok := vm.stack[vm.sp-1].(*object.CompiledFunction)
+			if !ok {
+				return fmt.Errorf("calling non-function")
+			}
+			frame := NewFrame(fn)
+			vm.pushFrame(frame)
+		case code.OpReturnValue:
+			// stack: | ... | CompiledFunction | Return Value |
+			// 1. ReturnValueをpopし、一時保存
+			// 2. Frameのpop, StackからCompiledFunctionをpop
+			// 3. ReturnValueをStackへpushして戻す
+			// stack: | ... | Return Value |
+			returnValue := vm.pop()
 
+			vm.popFrame()
+			vm.pop()
+
+			err := vm.push(returnValue)
+			if err != nil {
+				return err
+			}
+		case code.OpReturn:
+			// Return値がない場合はNullを返す(monkeyの仕様)
+			vm.popFrame()
+			vm.pop()
+
+			err := vm.push(Null)
+			if err != nil {
+				return err
+			}
 		case code.OpPop:
 			vm.pop()
 		}
@@ -224,7 +255,7 @@ func (vm *VM) pushFrame(f *Frame) {
 	vm.framesIndex++
 }
 
-func (vm *VM) popFrame(f *Frame) *Frame {
+func (vm *VM) popFrame() *Frame {
 	vm.framesIndex--
 	return vm.frames[vm.framesIndex]
 }
