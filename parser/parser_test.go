@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"monkey/ast"
 	"monkey/lexer"
+	"monkey/object"
 	"testing"
 )
 
@@ -963,13 +964,13 @@ func TestParsingHashLiteralsWithExpressions(t *testing.T) {
 }
 
 func TestStringHashKey(t *testing.T) {
-	hello1 := &String{Value: "Hello World"}
-	hello2 := &String{Value: "Hello World"}
-	diff1 := &String{Value: "My name is johny"}
-	diff2 := &String{Value: "My name is johny"}
+	hello1 := &object.String{Value: "Hello World"}
+	hello2 := &object.String{Value: "Hello World"}
+	diff1 := &object.String{Value: "My name is johny"}
+	diff2 := &object.String{Value: "My name is johny"}
 
 	if hello1.HashKey() != hello2.HashKey() {
-		t.Errof("strings with same content have differenct hash keys")
+		t.Errorf("strings with same content have differenct hash keys")
 	}
 
 	if diff1.HashKey() != diff2.HashKey() {
