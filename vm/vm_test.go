@@ -179,6 +179,19 @@ func TestCallingFunctionsWithoutArguments(t *testing.T) {
 	runVMTests(t, tests)
 }
 
+func TestFunctionCalls(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `
+			let oneArg = fn(a) { a };
+			oneArg(24);
+			`,
+			expected: 24,
+		},
+	}
+	runVMTests(t, tests)
+}
+
 func TestFunctionsWithReturnStatement(t *testing.T) {
 	tests := []vmTestCase{
 		{
