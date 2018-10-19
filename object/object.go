@@ -265,8 +265,9 @@ func (h *Hash) Inspect() string {
 
 // CompiledFunction コンパイラ用
 type CompiledFunction struct {
-	Instructions code.Instructions
-	NumLocals    int
+	Instructions  code.Instructions
+	NumLocals     int
+	NumParameters int
 }
 
 // Type meets the object.Object interface

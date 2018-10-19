@@ -204,18 +204,16 @@ func (vm *VM) Run() error {
 				return err
 			}
 		case code.OpCall:
+			// Stack上に関数の引数の数が置かれている
+			numArgs := code.ReadUint8(ins[ip+1:])
 			vm.currentFrame().ip++
 
-			// Stack上にあるCompiledFunctionをpopし、framesへ追加する
-			fn, ok := vm.stack[vm.sp-1].(*object.CompiledFunction)
-			if !ok {
-				return fmt.Errorf("calling non-function")
+			err := vm.callFunction(int(numArgs))
+			if err != nil {
+				return err
 			}
-			frame := NewFrame(fn, vm.sp)
-			vm.pushFrame(frame)
-			// Point: ローカル変数の数だけ"hole"を用意する
-			vm.sp = frame.basePointer + fn.NumLocals
 		case code.OpReturnValue:
+			//        bottom                                 top
 			// stack: | ... | CompiledFunction | Return Value |
 			// 1. ReturnValueをpopし、一時保存
 			// 2. Frameのpop, StackからCompiledFunctionをpop
@@ -466,4 +464,26 @@ func (vm *VM) buildHash(startIndex, endIndex int) (object.Object, error) {
 	}
 
 	return &object.Hash{Pairs: hashedPairs}, nil
+}
+
+func (vm *VM) callFunction(numArgs int) error {
+	// Stack上にあるCompiledFunctionをpopし、framesへ追加する
+	// spとCompiledFunction間に引数が存在するので引数の数だけspを差し引いたインデックスを参照する
+	//        bottom                                 top
+	// stack: | ... | CompiledFunction | arg1 | arg2 |
+	fn, ok := vm.stack[vm.sp-1-numArgs].(*object.CompiledFunction)
+	if !ok {
+		return fmt.Errorf("calling non-function")
+	}
+
+	if numArgs != fn.NumParameters {
+		return fmt.Errorf("wrong number of arguments: want=%d, got=%d", fn.NumParameters, numArgs)
+	}
+
+	frame := NewFrame(fn, vm.sp-numArgs)
+	vm.pushFrame(frame)
+	// Point: ローカル変数の数だけ"hole"を用意する
+	vm.sp = frame.basePointer + fn.NumLocals
+
+	return nil
 }
