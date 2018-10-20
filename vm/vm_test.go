@@ -316,7 +316,6 @@ func TestFirstClassFunctions(t *testing.T) {
 	}
 	runVMTests(t, tests)
 }
-
 func TestCallingFunctionsWithBindings(t *testing.T) {
 	tests := []vmTestCase{
 		{

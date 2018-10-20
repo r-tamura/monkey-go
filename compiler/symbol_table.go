@@ -3,8 +3,9 @@ package compiler
 type SymbolScope string
 
 const (
-	LocalScope  SymbolScope = "LOCAL"
-	GlobalScope SymbolScope = "GLOBAL"
+	LocalScope   SymbolScope = "LOCAL"
+	GlobalScope  SymbolScope = "GLOBAL"
+	BuiltinScope SymbolScope = "BUILTIN"
 )
 
 // Symbol プログラム内で宣言された変数を表す
@@ -56,4 +57,11 @@ func (s *SymbolTable) Resolve(name string) (Symbol, bool) {
 		return s.Outer.Resolve(name)
 	}
 	return obj, ok
+}
+
+// DefineBuiltin Builtin関数宣言
+func (s *SymbolTable) DefineBuiltin(index int, name string) Symbol {
+	symbol := Symbol{Name: name, Index: index, Scope: BuiltinScope}
+	s.store[name] = symbol
+	return symbol
 }

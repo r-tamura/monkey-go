@@ -65,6 +65,8 @@ const (
 	// Local Bindings
 	OpGetLocal
 	OpSetLocal
+
+	OpGetBuiltin
 )
 
 // Definition a defition of monkey instructions
@@ -101,6 +103,7 @@ var definitions = map[Opcode]*Definition{
 	OpReturn:        {"OpReturn", []int{}},
 	OpGetLocal:      {"OpGetLocal", []int{1}},
 	OpSetLocal:      {"OpSetLocal", []int{1}},
+	OpGetBuiltin:    {"OpGetBuiltin", []int{1}},
 }
 
 // Lookup Lookup
