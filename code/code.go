@@ -70,6 +70,7 @@ const (
 
 	// Closure
 	OpClosure
+	OpGetFree
 )
 
 // Definition a defition of monkey instructions
@@ -111,6 +112,7 @@ var definitions = map[Opcode]*Definition{
 	// 2byte Constant pool上の関数の位置
 	// 1byte 自由変数の数
 	OpClosure: {"OpClosure", []int{2, 1}},
+	OpGetFree: {"OpGetFree", []int{1}},
 }
 
 // Lookup Lookup
