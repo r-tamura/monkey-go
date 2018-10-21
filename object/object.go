@@ -24,6 +24,7 @@ const (
 	ARRAY_OBJ             = "ARRAY"
 	HASH_OBJ              = "HASH"
 	COMPILED_FUNCTION_OBJ = "COMPILED_FUNCTION_OBJ"
+	CLOSURE_OBJ           = "CLOSURE"
 )
 
 // Object 全ての値は異なる型で定義される
@@ -276,4 +277,19 @@ func (cf *CompiledFunction) Type() ObjectType { return COMPILED_FUNCTION_OBJ }
 // Inspect meets the object.Object interface
 func (cf *CompiledFunction) Inspect() string {
 	return fmt.Sprintf("CompiledFunction[%p]", cf)
+}
+
+// Closure CompiledFunctionへの参照と自由変数をプロパティに持つ
+// 全ての関数をClosureとして扱う
+type Closure struct {
+	Fn   *CompiledFunction
+	Free []Object
+}
+
+// Type meets the object.Object interface
+func (c *Closure) Type() ObjectType { return CLOSURE_OBJ }
+
+// Inspect meets the object.Object interface
+func (c *Closure) Inspect() string {
+	return fmt.Sprintf("Closure[%p]", c)
 }

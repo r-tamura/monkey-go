@@ -10,17 +10,17 @@ import (
 // monkeyの実装では関数のみにFrameを使用する
 // basePointer: stack上でのフレームの開始位置を記憶する
 type Frame struct {
-	fn          *object.CompiledFunction
+	cl          *object.Closure
 	ip          int
 	basePointer int
 }
 
 // NewFrame 新しいFrameを生成する
-func NewFrame(fn *object.CompiledFunction, basePointer int) *Frame {
-	return &Frame{fn: fn, ip: -1, basePointer: basePointer}
+func NewFrame(cl *object.Closure, basePointer int) *Frame {
+	return &Frame{cl: cl, ip: -1, basePointer: basePointer}
 }
 
 // Instructions Frameが参照しているCompileFunctionのInstructionsを取得する
 func (f *Frame) Instructions() code.Instructions {
-	return f.fn.Instructions
+	return f.cl.Fn.Instructions
 }
